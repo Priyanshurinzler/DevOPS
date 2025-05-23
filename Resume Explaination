@@ -64,3 +64,74 @@ monitor the pods and infrastructure
 			
 			enable horizontal pod autocaling
 			kubectl autoscale deployment myapp --cpu-percent=80 --min=2 --max=10
+	
+	Step 4 : Monitoring and Logging
+			Prometheus + Grafana
+			Cloud native monitoring tool >>> Cloudwatch, Azure Monitor, Google Cloud Operations
+			
+	Step 5 : Security
+			Pod Security
+			TLS & Secrets
+			
+	Step 6 : Troubleshooting
+			Pod Issues : kubectl describe pod <podname>
+						 kubectl logs <podname>
+			Events : 	 kubectl get events --sort-by=.metadata.creationTimestamp
+			
+			CrashLoopBackOff : Common error
+			
+			CrashLoopBackOff is a common Kubernetes pod error that indicates a container starts, crashes, and is being repeatedly restarted by the kubelet. It typically means the container is exiting too quickly, and Kubernetes is backing off before retrying.
+					
+					Crash: The container terminated with a non-zero exit code.
+		
+					Loop: Kubernetes keeps restarting it.
+		
+					BackOff: Kubernetes is waiting longer and longer between restart attempts.
+					
+			
+			Diagnose CrashLoopBackOff :
+				Check pod Status
+				Check logs
+				Descrie the pod >>> This shows reason for crash, exit codes, restart count, Events
+				Check Liveness/Readiness Probes
+				Look for Exit codes
+
+4)	Led OS Migrations from CentOS to RockyLinux for DC & GCP hosts
+	
+	Migrating from CentOS to Rocky Linux in a Data Center (DC) / GCP environment is a critical infrastructure upgrade driven by CentOS 8's end-of-life (EOL) and the need for a stable, enterprise-grade RHEL-compatible OS. Rocky Linux, being a community-driven rebuild of RHEL, is a common choice for enterprises seeking long-term stability
+	
+	STEP by STEP Migration Guide
+	
+	Step 1 : Migration Strategy overview
+		Approach					Description
+		In-place Upgrade			Convert existing CentOS 8 servers to Rocky Linux without reinstallation.
+		Rebuild + Reinstall			Fresh install Rocky Linux and reconfigure manually or via automation (Ansible, Terraform, etc.)
+		Phased Rollout				Migrate non-critical workloads first, then roll out to production nodes in waves.
+		Backup/Restore				Backup config/data, clean install Rocky, restore services.
+		
+	Step 2 : Pre-Migration Checklist
+		Inventory all CentOS servers
+		Verify compatiblity with RockyLinux
+		Document installed packages, running services, network configs, cron jobs, scripts
+		Snapshot / backups of containers or VMs
+		Notify the stakeholders
+		
+	Step 3 : In-Place migration using migrate2rocky.sh
+		RockyLinux offers a scripted migratio for CentOS 8
+		It:
+			Replaces CentOS repos with Rocky ones
+			Updates RPMs
+			Replaces branding
+			Cleans up caches
+	
+	Step 4 : Post Migration Validation
+			Check OS version and repo files
+			Verify critical services (Nginx, Apache, Docker, etc.)
+			Run monitoring agents
+			Rejoin config management
+			Test custom scripts, cron jobs
+			Run compliance scans
+			
+	NOTE : OS Migrations on GCP are more Cloud specific tasks like handling custom images, updating instance templates, and ensuring GCP services (like OS Login, Stackdriver agents, etc.) remain functional post-migration.
+	
+5) Developed Terraform modules for resource provisioning in GCP
