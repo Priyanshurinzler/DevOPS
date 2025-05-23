@@ -1,0 +1,66 @@
+23 May
+
+Currently working as part of AGILE methodology, tracking everything on JIA, except ahoc production requests, use XMatters for it
+manage infrastructure and configurations using terraform and ansible
+delivers apps as containers on kubernetes
+monitor the pods and infrastructure
+
+
+
+1)	ApigeeX
+	Apigee X is Google Cloud's API management platform that allows organizations to develop, manage, secure, and scale APIs (Application Programming Interfaces). 
+	It’s the next generation of Apigee, tightly integrated with Google Cloud services
+	
+	
+2)	Provisioned GCP and Azure hosts
+		we used the Azure Portal / Google Cloud Console
+		Gcloud / az CLI 
+		
+		Together using Terraform Modules
+		
+		code :
+			# For GCP
+				provider "google" {
+				project = "my-project-id"
+				region  = "us-central1"
+				}
+	
+				resource "google_compute_instance" "default" {
+				name         = "gcp-instance"
+				machine_type = "e2-medium"
+				zone         = "us-central1-a"
+				...
+				}
+				
+				# For Azure
+				provider "azurerm" {
+				features = {}
+				}
+				
+				resource "azurerm_linux_virtual_machine" "example" {
+				name                = "azure-vm"
+				resource_group_name = azurerm_resource_group.example.name
+				location            = azurerm_resource_group.example.location
+				...
+				}
+	
+3)	Managing Kubernetes Cluster Setup
+	Managing Kubernetes clusters, whether on GCP (GKE) or Azure (AKS), involves PROVISIONING THE CLUSTER, configuring access, deploying workloads, and setting up monitoring and scaling.
+	
+	Step 1 : Provisioning the Cluster
+			create a resource group
+			create a cluster
+			connect the resource group to the cluster
+	
+	Step 2 : Cluster Configuration Management Tasks
+			Kubeconfig: Use ~/.kube/config to authenticate and access clusters.
+			RBAC
+			Network Policies : restrict communication between pods
+			Resource Quotas and limits
+	
+	Step 3 : Deployment and Scaling
+			Kubectl or gitOPS tool like ARGOCD
+			kubectl apply -f deployment.yaml
+			
+			enable horizontal pod autocaling
+			kubectl autoscale deployment myapp --cpu-percent=80 --min=2 --max=10
