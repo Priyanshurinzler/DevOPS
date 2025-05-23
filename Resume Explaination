@@ -134,4 +134,92 @@ monitor the pods and infrastructure
 			
 	NOTE : OS Migrations on GCP are more Cloud specific tasks like handling custom images, updating instance templates, and ensuring GCP services (like OS Login, Stackdriver agents, etc.) remain functional post-migration.
 	
-5) Developed Terraform modules for resource provisioning in GCP
+5)	Developed Terraform modules for resource provisioning in GCP
+	
+	Developing Terraform modules for GCP resource provisioning is all about creating reusable, scalable, and standardized building blocks that can be version-controlled and consumed across projects or teams.
+	
+	Step 1 : Understanding what to modularize
+		Commonly reused resources / logical groupings
+			VPC / subnets
+			GKE clusters & node pools
+			Service accounts and IAM bindings
+			Compute instances with firewall
+	
+	Step 2 : Terraform Module Structure
+		gcp-modules/
+		└── gke/
+			├── main.tf         # Contains resource definitions
+			├── variables.tf    # Input variables for the module
+			├── outputs.tf      # Outputs to expose to caller
+			└── README.md       # Documentation
+
+	Step 3 : Define the Module
+		variables.tf ( project id, network name, region ) 
+		main.tf	( resource definition )
+		outputs.tf ( network id )
+		
+	Step 4 : Use the module
+		In a root terraform project 
+	
+	Step 5 : Publish internally for everyone to use
+	
+	
+	Tooling & Linting
+		terraform fmt 		– format code
+		terraform validate 	– validate syntax
+		tflint 				– lint for GCP best practices
+		pre-commit 			– enforce checks
+		terraform-docs 		– auto-generate module documentation
+		
+6) 	Decommissioning Unused resources, deleting Kubernetes namespaces, Right Sizing GCP compute instances
+	
+	Critical COST OPTIMIZATION and CLOUD HYGIENE practices in DevOps and cloud operations.
+	
+	A : Decommissioning Unused resources
+		Step 1 : Identify unused resources
+			Used GCP Recommender >> Suggests idle VM instances, disks, IPs 
+			Billing Reports
+			Cloud Asset inventory
+			
+			Decommission those resources using the following
+				# Delete a disk
+				gcloud compute disks delete DISK_NAME --zone=us-central1-a
+				
+				# Release unused IP
+				gcloud compute addresses delete IP_NAME --region=us-central1
+				
+			Can also use Terraform -target to delete specific unused resources
+				terraform destroy -target=google_compute_instance.old_vm
+	
+	B : Deleting Kubernetes namespaces
+		Identify stale namespaces
+			kubectl get namespaces --show-labels
+			here, we can check for 
+						age,
+						no active pods or deployments
+		Then Delete the namespaces
+			Kubectl delete namespace <namespace-name>
+			
+			
+		Best Practices
+			Label namespaces with env, owner, and expiry tags.
+			
+			Set auto-cleanup jobs for non-prod clusters.
+			
+	C : Right Sizing GCP compute instances
+		Identify oversized VMs
+			Use recommender ( Automatic )
+			
+			Manual >>> Check for CPU / Memory Usage with monitoring
+			
+		Resize the VM
+			Stop the VM
+			Make change
+			Start the VM
+			
+			if it is part of MIG { Managed Instance Group }
+			Use instance template >>> rolling update MIG
+			
+7) 	Automating IAM Resource provisioning using Terraform
+	
+	Automating IAM resource provisioning using Terraform on GCP ensures secure, consistent, and auditable access control across the cloud infrastructure.
