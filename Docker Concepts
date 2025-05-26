@@ -81,5 +81,17 @@ Common Issues and debugging
 
 		Solution:
 		Check the container’s logs: docker logs <container>
+	
+	2: Port Conflicts
+		Cause:		Host port already in use.
 
+		Solution:	Change the port mapping in docker run or docker-compose.yml: 	docker run -d -p 8081:80 nginx
+		OR 
+		stop the process using conflicting port : sudo lsof -i :8080, sudo kill <pid>
+	
+	3: Cannot connect to docker Daemon
+		Cause:		Docker service not running or permissions issue.
+		
+		Solution:   Start docker 			 >>> sudo systemctl start docker
+			    Add user to docker group 		 >>> sudo usermod -aG docker $USER; newgrp docker
 
