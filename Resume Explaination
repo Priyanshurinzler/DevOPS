@@ -219,7 +219,18 @@ monitor the pods and infrastructure
 			
 			if it is part of MIG { Managed Instance Group }
 			Use instance template >>> rolling update MIG
-			
+
 7) 	Automating IAM Resource provisioning using Terraform
 	
 	Automating IAM resource provisioning using Terraform on GCP ensures secure, consistent, and auditable access control across the cloud infrastructure.
+	
+	Step 1 : Determining what can you provision
+		Service Account, Service Account Key
+	
+	Step 2 : Create service accounts with Terraform
+		
+	Step 3 : Assign IAM roles to these service accounts
+	
+	Step 4 : Create custom IAM role
+	
+	Step 5 : Make it a resuable module
