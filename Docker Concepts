@@ -1,0 +1,85 @@
+WHAT is DOCKER
+
+	Open source platform for automating the deployment of apps as lightweight, portable containers
+	CONTAINERS are  isolated processes that share the OS kernel but have their own filesystems, networking, and process space.
+
+KEY Components
+	
+	Docker Engine		Core client-server architecture (daemon dockerd + CLI docker)
+	Docker Images		Immutable application templates (built from Dockerfiles)
+	Docker Containers	Running instances of images
+	Dockerfile		Script to define how to build an image
+	Docker Hub		Public image registry
+	Docker Compose		Tool to define and run multi-container applications (docker-compose.yml)
+	
+CORE 
+
+	1: Images
+		Built from layers ( Reusable file system deltas )
+		Created via Dockerfile
+		docker build -t myapp
+		
+	2: Container
+		Running instance of an image.
+		Runs in an isolated runtime environment.
+		start a container >>> docker run -d -p 80:80 nginx
+	
+	3: Dockerfile
+		Defines how to build an image
+		Key Instructions :
+			FROM 			: specifie base image
+			COPY, ADD		: Copy files
+			RUN 			: Commands to run at build time
+			CMD, ENTRYPOINT         : Default commands
+			EXPOSE 			: Expose the port 
+	
+	4: Volumes
+		Persistant storage shared between host and container
+		docker volume create mydata
+		
+	5: Network
+		Docker has in-built network driver system 
+			Bridge ( default for single host )
+			host ( shares host's network )
+			overlay ( multihost )
+		Container communication uses these networks
+	
+	6: Docker Compose
+		YAML file for multi container setups
+		example >>>>
+				version: "3"
+				services:
+					web:
+						image: nginx
+						ports:
+						- "8080:80"
+					db:
+						image: mysql
+						environment:
+						MYSQL_ROOT_PASSWORD: root
+	
+	7: Docker Registry
+		Docker Hub is the default.
+		Private registries (Harbor, AWS ECR, GCP Artifact Registry) can be used.
+	
+COMMON Commands
+	docker ps				List running containers
+	docker images			        List local images
+	docker logs <container>			View logs
+	docker exec -it <container> bash	Run command in running container
+	docker stop/start <container>		Manage container lifecycle
+	docker rm <container>			Remove container
+	docker rmi <image>			Remove image
+	
+Common Issues and debugging
+	1: Containers Exiting Immediately
+		docker ps -a
+		# Container status: Exited (0) seconds ago
+		
+		Cause:
+		The container’s main process (PID 1) finished quickly.
+
+		Solution:
+		Check the container’s logs: docker logs <container>
+
+
