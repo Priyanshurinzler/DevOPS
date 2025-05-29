@@ -32,7 +32,7 @@ monitor the pods and infrastructure
 				...
 				}
 				
-				# For Azure
+			# For Azure
 				provider "azurerm" {
 				features = {}
 				}
