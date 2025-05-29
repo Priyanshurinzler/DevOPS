@@ -81,3 +81,148 @@ BEST Practices
 	Use caching for dependencies
 	Use environments for Dev, staging, Prod
 	
+
+INTEGRATION WITH CLOUD RESOURCES
+
+Integrating CI CD pipeline with cloud resources is essential to deploy and manage infrastructure automatically.
+
+Benefits
+✅ Automated Deployments: Deploy to Kubernetes, VMs, or Serverless.
+✅ Manage Infrastructure as Code (IaC): Use Terraform, CloudFormation, or ARM templates.
+✅ Leverage Cloud Services: Logging, monitoring, managed DBs, etc.
+✅ Security: Use cloud IAM roles and avoid hardcoded secrets.
+
+
+
+Common cloud integrations
+
+AWS 	>>> Deploy to EC2, EKS, ECS, Lambda via AWS CLI or SDK. Use AWS Secrets Manager for sensitive data.
+
+Azure	>>> Deploy to Azure VMs, AKS, Functions via AZ CLI or Azure DevOps. Use Key Vaults for secrets.
+
+GCP 	>>> Deploy to GCE, GKE, Cloud run using GCLOUD CLI. Use Secrets manager and IAM for security.
+
+
+🔐 Securely Manage Secrets
+✅ Use cloud-native secret managers:
+
+	AWS Secrets Manager / Parameter Store
+	GCP Secret Manager
+	Azure Key Vault
+	
+
+Terraform in CI CD 
+Use terraform to create cloud resources like VPCs, Clusters, Databases in your pipeline
+
+	Terraform init
+	Terraform plan
+	Terraform apply
+	Terraform destroy
+
+Store the state remotely >>> S3 + Dynamo DB in AWS, GCS Bucket in GCP, Azure Blob Storage in Azure Cloud
+
+
+	Storing terraform state remotely is essential for collaboration, Security and disaster recovery.
+	
+	Common steps include 
+		
+		1: Create a backend block 
+
+			terraform {
+				backend "azurerm" {
+					resource_group_name   = "my-tfstate-rg"
+					storage_account_name  = "mytfstateaccount"
+					container_name        = "tfstate"
+					key                   = "terraform.tfstate"
+				}
+			}
+			
+			OR 
+			
+			terraform {
+				backend "gcs" {
+					bucket  = "my-tfstate-bucket"
+					prefix  = "terraform/state"
+				}
+			}	
+			
+			OR
+			
+			terraform {
+				backend "s3" {
+					bucket         = "my-tfstate-bucket"
+					key            = "terraform.tfstate"
+					region         = "us-east-1"
+					dynamodb_table = "terraform-locks"
+					encrypt        = true
+				}
+			}
+		
+		2: Create resource group, storage account, Blob Container for Azure
+		or Create bucket, enable object versioning for easier rollback
+		or Create S3 bucket and DynamoDB table for locking
+	
+	BEST Practices
+	Use state locking, DynamoDB in AWS or rely on backend features in GCP/Azure.
+	Enable Encryption by default
+	Use versioning for easier rollback
+	
+	
+
+COMMON QUESTIONS
+
+1. What is CI/CD? Why is it important?
+
+	CI: Automate testing/merging code.
+	CD: Automate delivery/deployment.
+	Speeds up development, ensures reliability.
+
+2. Difference between Continuous Delivery and Continuous Deployment?
+
+	Delivery: Automatic deploy to staging; manual to prod.
+	Deployment: Automatic deploy all the way to prod.
+
+3. What are the typical stages in a CI/CD pipeline?
+
+	Build → Test → Deploy → (Optional: Notifications, Rollbacks)
+	
+4. What is a pipeline?
+
+	A set of automated steps in CI/CD (e.g., Jenkinsfile, .gitlab-ci.yml).
+	
+5. What tools have you used for CI/CD?
+
+	Jenkins, Gitlab CLI, Github Actions, Azure DevOps, GCP, AWS.
+	
+6. How do you secure sensitive data in pipelines?
+	
+	Use environment variables or secrets manager ( vault, Secrets manager )
+	Never hardcode secrets in code.
+	
+7. Explain a jenkins pipeline.
+
+	Groovy based script with stages, steps and agents.
+	
+	EXAMPLE
+		pipeline {
+			agent any
+			stages {
+				stage('Build') { steps { echo 'Building...' } }
+				stage('Test') { steps { echo 'Testing...' } }
+				stage('Deploy') { steps { echo 'Deploying...' } }
+			}
+		}
+
+8. What is a pipeline trigger?
+	
+	Event that starts a pipeline, like a push, PR, cron job.
+
+9. How to integrate automated tests in the pipeline?
+	
+	Add a test stage ( unit/integration tests )
+	Block deploy if tests fail.
+	
+10. What is an artifact in CI/CD?
+
+	Output of a build stage. like a jar file, docker image.
+
