@@ -8,7 +8,7 @@ AZURE devops services
 	2. Azure Pipelines	>>> CI CD automation, build test and deploy apps to any platform.
 	3. Azure Boards		>>> Agile project management : work items, Kanban Boards, sprints.
 	4. Azure Artifacts	>>> Package management: Host Maven, npm, NuGet packages.
-	5. Azure Test Plans >>> Manual and exploratory testing, track test cases and results.
+	5. Azure Test Plans 	>>> Manual and exploratory testing, track test cases and results.
 	
 Pipeline as code
 
@@ -40,6 +40,11 @@ Integration with Cloud and Tools
 ✅ Retain control over versions and dependencies.
 
 
+
+COMMON INTERVIEW TOPICS :::: 
+
+
+
 DIFFERENCE BETWEEN BUILD AND RELEASE PIPELINE :
 
 🚀 Build Pipeline
@@ -62,7 +67,6 @@ DIFFERENCE BETWEEN BUILD AND RELEASE PIPELINE :
         Can include approval gates, manual intervention, and environment-specific variables.
 
 
-
 | Aspect              | Build Pipeline                     | Release Pipeline                       |
 | ------------------- | ---------------------------------- | -------------------------------------- |
 | **Focus**           | Build, test, package               | Deploy artifacts to environments       |
@@ -81,3 +85,20 @@ DIFFERENCE BETWEEN BUILD AND RELEASE PIPELINE :
                         - stage: Deploy
                         - stage: Test
         This merges build and release into a single pipeline definition!
+
+
+
+✅ Explain the stages, jobs, and steps in Azure Pipelines.
+	Pipeline
+	└── Stages
+    		├── Jobs
+    		│   ├── Steps
+    		│   └── Steps
+    		└── Jobs
+                    ├── Steps
+        	    └── Steps
+	
+Stage	>>> Major phase (Build, Test, Deploy)
+Job	>>> Group of steps run together on 1 agent
+Steps   >>> Smallest unit, script / task / etc.
+
