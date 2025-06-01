@@ -1,0 +1,83 @@
+Azure devops is basically a cloud based suite from Microsoft to manage entire software development lifecycle ( SDLC )
+previously known as Visual Studio Team Services.
+Works on any language, platform or cloud.
+
+
+AZURE devops services
+	1. Azure Repos 		>>> Source code repositories, like git, support branching, PRs & code review.
+	2. Azure Pipelines	>>> CI CD automation, build test and deploy apps to any platform.
+	3. Azure Boards		>>> Agile project management : work items, Kanban Boards, sprints.
+	4. Azure Artifacts	>>> Package management: Host Maven, npm, NuGet packages.
+	5. Azure Test Plans >>> Manual and exploratory testing, track test cases and results.
+	
+Pipeline as code
+
+	Azure uses YAML based pipelines ( azure-pipelines.yml ) for versin control and reproducibility.
+	
+	stages >>> jobs >>> Steps
+	
+Integration with Cloud and Tools
+
+	Azure Repos : Direct integration with Git
+	GitHub, GitLab
+	external Cloud targets like AWS, GCP
+	Terraform, Ansible
+	
+🔐 Security and Governance
+✅ Service connections: Secure credentials for cloud resources (e.g., Azure, AWS).
+✅ Approvals and gates: Manual checks before deploy.
+✅ RBAC: Control who can edit pipelines, repos, boards. Role Based Access Control
+
+
+🏗️ Boards & Project Management
+✅ Agile boards (Kanban, Scrum).
+✅ Track user stories, tasks, bugs.
+✅ Dashboards for visibility.
+
+
+🟦 Artifacts and Packages
+✅ Feed for sharing NuGet ( .net ), npm ( js ), Python, and Maven ( java ) packages.
+✅ Retain control over versions and dependencies.
+
+
+DIFFERENCE BETWEEN BUILD AND RELEASE PIPELINE :
+
+🚀 Build Pipeline
+✅ Purpose:
+        Compiles and packages your code.
+        Runs unit tests and creates build artifacts (e.g., .zip, .jar, Docker images).
+
+✅ Key Features:
+        CI (Continuous Integration): Automatically triggered on code changes (commits, pull requests).
+        Usually runs on every push or branch update.
+
+
+🚀 Release Pipeline
+✅ Purpose:
+        Deploys the built artifacts to environments (like Dev, QA, Staging, Production).
+        Handles configuration, approvals, and promotion across environments.
+
+✅ Key Features:
+        CD (Continuous Deployment/Delivery): Deploys to environments automatically or with approvals.
+        Can include approval gates, manual intervention, and environment-specific variables.
+
+
+
+| Aspect              | Build Pipeline                     | Release Pipeline                       |
+| ------------------- | ---------------------------------- | -------------------------------------- |
+| **Focus**           | Build, test, package               | Deploy artifacts to environments       |
+| **Typical Outputs** | Artifacts (binaries, images, etc.) | Deployment to servers/cloud            |
+| **Trigger**         | Code changes (push, PR)            | Artifact published, or manual trigger  |
+| **CI or CD?**       | Continuous Integration (CI)        | Continuous Deployment/Delivery (CD)    |
+| **Example Tool**    | YAML pipeline (build stage)        | Classic Release pipeline or YAML stage |
+
+
+
+✅ Modern best practice:
+        Use YAML pipelines with multiple stages (build, deploy, test, etc.)
+        EXAMPLE :
+                stages:
+                        - stage: Build
+                        - stage: Deploy
+                        - stage: Test
+        This merges build and release into a single pipeline definition!
