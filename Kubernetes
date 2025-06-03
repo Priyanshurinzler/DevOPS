@@ -1,0 +1,275 @@
+✅ Pod: The smallest deployable unit in Kubernetes—usually one container, sometimes multiple tightly coupled containers.
+
+✅ ReplicaSet: Ensures a specified number of identical pods are running.
+
+✅ Deployment: Manages ReplicaSets for declarative updates (rolling updates, rollbacks).
+	✅ A Deployment is a controller in Kubernetes that manages a set of pods.
+	✅ It defines the desired state (like number of replicas, pod template, update strategy) and makes sure the cluster matches that.
+
+✅ StatefulSet: Like a Deployment but for stateful applications (stable network IDs, storage).
+	✅ Stateful applications that need persistent storage and stable network identities.
+
+✅ DaemonSet: Ensures a pod runs on all (or some) nodes (e.g., log collectors).
+
+✅ Job/CronJob: For one-time (Job) or scheduled (CronJob) tasks.
+
+✅ Service: Exposes a set of pods as a network service (ClusterIP, NodePort, LoadBalancer).
+
+✅ Ingress: Manages external HTTP/S access, often using an ingress controller.
+
+✅ Namespace: Logical partitioning within a cluster (multi-tenancy).
+
+✅ ConfigMap & Secret: Inject configuration data and sensitive data, respectively.
+
+✅ PersistentVolume (PV) & PersistentVolumeClaim (PVC): For persistent storage.
+
+✅ HPA (Horizontal Pod Autoscaler): Scales pods based on metrics (CPU, memory, or custom).
+
+✅ kubelet: Node agent that manages the pod lifecycle.
+
+✅ kube-proxy: Maintains network rules to allow pod communication.
+
+✅ etcd: Key-value store for cluster state (control plane database).
+
+
+Control plane : API server, etcd, controller manager, scheduler
+
+Node Componennts : kubelet, kube-proxy, container runtime
+
+
+
+| Action           | Command                                        |
+| ---------------- | ---------------------------------------------- |
+| List pods        | `kubectl get pods`                             |
+| View pod details | `kubectl describe pod <pod>`                   |
+| View logs        | `kubectl logs <pod>`                           |
+| Exec into pod    | `kubectl exec -it <pod> -- /bin/bash`          |
+| Scale deployment | `kubectl scale deployment <name> --replicas=3` |
+| Apply YAML       | `kubectl apply -f <file>`                      |
+| Delete pod       | `kubectl delete pod <name>`                    |
+
+
+to scale a deployment, use scale command, or update the YAML manifest.
+can use HPA ( Horizontal Pod Autoscaler )
+
+🔷 What is a Namespace?
+	✅ A namespace in Kubernetes is a way to organize and isolate resources (like pods, services, deployments).
+	✅ Think of it as a logical boundary for resources within a cluster.
+	
+	🔷 Why Use Namespaces?
+	🔹 Separate environments (like dev, staging, prod).
+	🔹 Avoid name collisions (you can have the same pod name in different namespaces).
+	🔹 Apply resource quotas and access controls (RBAC) at a namespace level.
+	
+	kubectl create namespace my-namespace
+
+
+🔷 Liveness Probe
+✅ Purpose: Checks if the container is still alive (healthy).
+✅ If it fails: Kubernetes restarts the container (like a self-healing mechanism).
+
+🔹 Example: Your app’s main process crashed or got stuck — the liveness probe will detect this and restart the pod.
+
+🔷 Readiness Probe
+✅ Purpose: Checks if the container is ready to serve traffic.
+✅ If it fails: Kubernetes removes the pod from the service endpoints (so it doesn’t get traffic).
+✅ Does NOT restart the container.
+
+🔹 Example: Your app is still starting up (like waiting for DB connection). Readiness probe keeps it out of the load balancer until it’s ready.
+
+
+| Feature        | ConfigMap                   | Secret                   |
+| -------------- | --------------------------- | ------------------------ |
+| **Use for**    | App configs (non-sensitive) | Secrets & sensitive data |
+| **Encoding**   | Plain text                  | Base64-encoded           |
+| **Encryption** | Not encrypted by default    | Can be encrypted at rest |
+| **Access**     | Env variables, volumes      | Same as ConfigMaps       |
+
+
+🔷 What is a Kubernetes Service?
+✅ A Service in Kubernetes is an abstraction that defines a logical set of pods and a policy to access them.
+
+🔷 Why Do We Need It?
+Pods are dynamic: They can come and go (especially with deployments, scaling, etc.).
+
+A service provides a stable IP address / DNS name to access those pods, even if the actual pod IPs keep changing.
+
+Acts as a load balancer within the cluster.
+
+
+	✅ 1️. ClusterIP (default)
+	Access: Internal cluster-only.
+	
+	Use case: Communication between pods/services inside the cluster.
+	
+	✅ 2️. NodePort
+	Access: Exposes service on each Node’s IP at a static port (range: 30000-32767).
+	
+	Use case: Quick external access for testing/demo (but not for production load balancing).
+	
+	✅ 3️. LoadBalancer
+	Access: Creates an external load balancer (if cloud provider supports it).
+	
+	Use case: Exposes service to the internet (like with AWS ELB, GCP LB).
+	
+	✅ 4️. ExternalName
+	Access: Maps the service to an external DNS name.
+	
+	Use case: Integrate with external resources (like an external DB).
+	
+For rolling updates
+
+Addition in YAML Config
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1      # max old pods that can be unavailable
+    maxSurge: 1            # max extra pods above desired count
+
+
+
+
+🔷 What is CrashLoopBackOff?
+It means a pod keeps crashing and restarting repeatedly.
+
+	Get Pod details 
+	kubectl get pods
+	kubectl describe pod <pod-name>
+	
+	Check pod logs >>> kubectl logs <pod-name>
+
+	✅ Check Liveness/Readiness Probes
+
+		Misconfigured probes can kill pods prematurely.
+		Check livenessProbe and readinessProbe in the deployment YAML.
+	
+	Maybe it’s missing dependencies or environment variables.
+	
+	Check if the pod has enough memory/CPU.
+	OOMKilled errors = out of memory.
+	
+	If the pod relies on a secret or config map that’s missing or misconfigured, it can crash.
+	
+
+🔷 What is HPA?
+✅ The Horizontal Pod Autoscaler (HPA) automatically adjusts the number of pods in a deployment (or replica set) based on observed resource usage (like CPU or memory).
+
+	🔷 How it Works (Step by Step)
+	1️. Metrics Collection
+	
+		HPA watches metrics (e.g., CPU usage, memory usage) using the Metrics Server.
+	
+		Metrics can also be custom metrics if configured.
+	
+	2️. Compare to Target
+	
+		You set a target average utilization (like 70% CPU).
+	
+		HPA continuously compares actual usage with the target.
+	
+	3️. Adjust Pod Count
+	
+		If usage > target ➜ HPA scales up (adds pods).
+	
+		If usage < target ➜ HPA scales down (removes pods).
+	
+	4️. Updates the Deployment
+	
+		HPA updates the Deployment’s replica count to match the calculated number of pods.
+		
+		
+✅ What is a taint?
+A taint marks a node as “unfriendly” for pods.
+It tells Kubernetes:
+👉 “Don’t schedule pods here, unless they tolerate this taint.”
+
+
+			kubectl taint nodes node1 key=value:NoSchedule
+
+
+✅ What is a toleration?
+A toleration is added to a pod, and it matches the taint, telling Kubernetes:
+👉 “It’s okay for me to run on nodes with this taint!”
+
+
+🔷 Why Use Taints and Tolerations?
+✅ Node isolation: Prevent certain pods from running on nodes with specialized hardware.
+✅ Dedicated nodes: E.g., nodes for GPU workloads, high-memory workloads, etc.
+✅ Node maintenance: Mark nodes as unschedulable temporarily.
+
+
+
+
+🔷 What is Affinity?
+✅ Affinity controls where pods are scheduled (placed) within a cluster, based on certain rules.
+✅ Helps you influence pod placement to optimize performance, reliability, or availability.
+
+🔷 Types of Affinity
+	🔹 Node Affinity
+	👉 Decides which nodes a pod can be scheduled on, based on node labels.
+	
+	🔹 Pod Affinity
+	👉 Tells Kubernetes to place pods together (co-locate pods).
+	
+	🔹 Pod Anti-Affinity
+	👉 Tells Kubernetes to avoid placing certain pods together (spread them out).
+	
+🔷 Why Use Affinity & Anti-Affinity?
+✅ Improve reliability – avoid placing all replicas of a service on the same node.
+✅ Performance – place pods closer together (same node or same rack).
+✅ Compliance – control pod distribution based on business or regulatory rules.
+
+
+
+✅ How would you monitor a Kubernetes cluster?
+
+🔹 Use monitoring tools like Prometheus & Grafana for metrics and dashboards.
+🔹 Use Kubernetes Metrics Server for pod and node resource usage (CPU, memory).
+🔹 Logging: Use EFK stack (Elasticsearch, Fluentd, Kibana) or Loki for logs.
+🔹 Alerts: Set up Prometheus Alertmanager or integrate with tools like PagerDuty or Slack to get notified about issues.
+
+✅ What’s your approach to upgrading a Kubernetes cluster?
+
+	🔹 Plan carefully:
+	
+		Review Kubernetes version changes and deprecated APIs.
+		
+		Check compatibility with deployed workloads.
+		
+		Backup etcd and cluster configuration.
+	
+	🔹 Upgrade strategy:
+	
+		Upgrade control plane components first (API server, scheduler, controller manager).
+		
+		Then upgrade worker nodes one by one (cordon, drain, upgrade, uncordon).
+		
+		Use tools like kubeadm or managed cluster upgrade tools (e.g., GKE, EKS, AKS).
+	
+	🔹 Test:
+	
+		Verify workloads are healthy after each upgrade.
+		
+		Use canary upgrades if possible.
+
+✅ How do you handle secret management in Kubernetes?
+
+🔹 Use Kubernetes Secrets (base64-encoded data) for storing sensitive data like DB passwords and API keys.
+🔹 Best practice: encrypt secrets at rest in etcd (via encryption provider).
+🔹 Use external secret managers like:
+
+		HashiCorp Vault
+		
+		AWS Secrets Manager
+		
+		Azure Key Vault
+		and integrate with Kubernetes using external secret controllers.
+		
+✅ Explain a scenario where you optimized resource usage in a cluster.
+
+In one project, we noticed pods were over-provisioned (high CPU/memory requests) leading to underutilized nodes and high costs.
+🔹 I analyzed resource usage with Prometheus and Grafana dashboards.
+🔹 Adjusted resource requests/limits to better match actual usage, reducing wasted resources.
+🔹 Also used HPA (Horizontal Pod Autoscaler) to scale workloads dynamically based on usage.
+🔹 Result: ~30% cost savings and better node utilization.
