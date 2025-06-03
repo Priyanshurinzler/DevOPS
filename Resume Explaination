@@ -32,7 +32,7 @@ monitor the pods and infrastructure
 				...
 				}
 				
-			# For Azure
+				# For Azure
 				provider "azurerm" {
 				features = {}
 				}
@@ -64,7 +64,7 @@ monitor the pods and infrastructure
 			
 			enable horizontal pod autocaling
 			kubectl autoscale deployment myapp --cpu-percent=80 --min=2 --max=10
-	
+			
 	Step 4 : Monitoring and Logging
 			Prometheus + Grafana
 			Cloud native monitoring tool >>> Cloudwatch, Azure Monitor, Google Cloud Operations
@@ -178,6 +178,7 @@ monitor the pods and infrastructure
 	A : Decommissioning Unused resources
 		Step 1 : Identify unused resources
 			Used GCP Recommender >> Suggests idle VM instances, disks, IPs 
+			Used Azure Advisor >> Provides recommendations for underutilized VMs, disks, NICs, public IPs, etc.
 			Billing Reports
 			Cloud Asset inventory
 			
@@ -219,8 +220,10 @@ monitor the pods and infrastructure
 			
 			if it is part of MIG { Managed Instance Group }
 			Use instance template >>> rolling update MIG
-
+			
 7) 	Automating IAM Resource provisioning using Terraform
+	
+	Identity and Access Management
 	
 	Automating IAM resource provisioning using Terraform on GCP ensures secure, consistent, and auditable access control across the cloud infrastructure.
 	
@@ -234,3 +237,41 @@ monitor the pods and infrastructure
 	Step 4 : Create custom IAM role
 	
 	Step 5 : Make it a resuable module
+	
+	
+
+
+At my company, 
+I use Terraform to provision cloud infrastructure in AZURE and GCP, organizing code into reusable modules stored in a remote backend for secure state management. 
+
+Post-provisioning, we rely on SaltStack states for OS-level configuration and application setup—ensuring consistent, automated deployments. 
+
+Both tools are integrated into our CI/CD pipelines to automate linting, validation, and deployment, with manual approvals for production. 
+
+This separation of resource provisioning (Terraform) and configuration management (SaltStack) has improved reliability and streamlined our infrastructure automation efforts.
+
+
+| Feature                | SaltStack                                                      | Ansible                                            |
+| ---------------------- | -------------------------------------------------------------- | -------------------------------------------------- |
+| **Architecture**       | Master (controller) with minions (agents).                     | Agentless, uses SSH or WinRM to connect.           |
+| **Communication**      | ZeroMQ-based messaging for fast communication.                 | SSH-based (or Windows remote via WinRM).           |
+| **Speed**              | Very fast, good for large environments.                        | Slower in massive environments (due to SSH-based). |
+| **Ease of Use**        | More complex, steeper learning curve.                          | Simpler, very beginner-friendly.                   |
+| **Idempotence**        | Built-in.                                                      | Built-in.                                          |
+| **Execution Models**   | Push (or pull), can run ad-hoc commands (like Ansible ad-hoc). | Push-based only.                                   |
+| **Community/Adoption** | Smaller than Ansible, but still active.                        | Very popular, large community and adoption.        |
+| **Strengths**          | Real-time event-driven automation (via SaltStack Reactors).    | Simplicity, easy adoption, YAML playbooks.         |
+
+
+
+
+At my company, 
+We run Kubernetes clusters in both GKE and AKS, 
+
+with a control plane that manages cluster state using etcd and API Server, 
+
+while worker nodes run containerd as the container runtime. 
+
+We use Helm charts for templating and standardizing our application deployments, and ArgoCD for automated, GitOps-based continuous delivery. 
+
+SaltStack states handle the underlying OS configuration and ensure consistent setup across environments, including patching and package installation. This architecture has enabled us to scale reliably and deploy workloads securely in both Google Cloud and Azure environments.
