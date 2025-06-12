@@ -95,3 +95,589 @@ Common Issues and debugging
 		Solution:   Start docker 			 >>> sudo systemctl start docker
 			    Add user to docker group 		 >>> sudo usermod -aG docker $USER; newgrp docker
 
+
+
+Common questions
+✅ What is Docker? Why use it?
+	Docker is a platform that allows you to package an application and its dependencies into a container so it can run reliably across any environment.
+
+	Why use Docker?
+
+		Portability: "It works on my machine" problem solved.
+		
+		Lightweight: Uses host OS kernel, less overhead than VMs.
+		
+		Consistent deployments across dev, test, and prod.
+		
+		Isolation: Each container runs independently.
+		
+		Fast startup and shutdown times.
+		
+		
+		
+✅ How is Docker different from virtual machines?
+
+
+| Feature        | Docker (Container)    | Virtual Machine |
+| -------------- | --------------------- | --------------- |
+| Architecture   | Shares host OS kernel | Full guest OS   |
+| Resource Usage | Lightweight           | Heavyweight     |
+| Startup Time   | Seconds               | Minutes         |
+| Isolation      | Process-level         | Hardware-level  |
+| Portability    | Highly portable       | Less portable   |
+
+
+
+
+✅ What is a Docker image?
+	A Docker image is a read-only template that contains:
+
+		The application code
+		
+		All its dependencies
+		
+		OS libraries, runtimes, and configuration
+		
+		Containers are created from images.
+		
+		Think of an image like a blueprint; containers are the running instances of that blueprint.
+		
+
+
+✅ What happens when you run docker run?
+	
+	When you execute docker run:
+	
+		Docker checks if the image exists locally.
+		
+		If not, it pulls it from the Docker registry.
+		
+		It creates a container based on the image.
+		
+		Allocates resources (CPU, memory, networking, volumes).
+		
+		Starts the main process (specified in CMD or ENTRYPOINT).
+		
+		The container continues to run as long as the process runs.
+		
+		
+✅ Explain Dockerfile structure.
+
+A Dockerfile is a script with instructions to build an image.
+
+
+FROM 				— base image
+RUN 				— execute commands to install dependencies
+COPY / ADD			— copy files into image
+WORKDIR 			— set working directory inside container
+EXPOSE 				— declare which ports are exposed
+CMD or ENTRYPOINT 	— default command when container starts
+
+
+✅ How do you persist data in Docker?
+	By default, Docker containers are ephemeral — when a container is deleted, its data is lost.
+	
+	To persist data:
+	
+		Use Docker volumes
+		
+		Use bind mounts
+		
+		Use external storage or databases
+		
+
+✅ What is a Docker volume?
+	A Docker volume is:
+
+		A managed storage mechanism provided by Docker.
+		
+		Stored under /var/lib/docker/volumes/ on the host.
+		
+		Decouples data from containers (data stays even if container is deleted).
+		
+	✅ Why use volumes:
+		
+		Easier data backup/restore
+		
+		Managed by Docker (less prone to permission issues)
+		
+		Recommended for production use
+		
+	docker volume create mydata
+	docker volume ls
+	docker volume inspect mydata
+
+
+
+
+✅ How does Docker networking work?
+Docker provides several built-in network drivers:
+
+| Network Type         | Use Case                                                               |
+| -------------------- | ---------------------------------------------------------------------- |
+| **bridge** (default) | Isolated networks for containers on the same host                      |
+| **host**             | Shares host network stack (no isolation)                               |
+| **none**             | No networking                                                          |
+| **overlay**          | Used in Swarm for multi-host networking                                |
+| **macvlan**          | Assigns MAC addresses to containers (acts like real network interface) |
+
+
+✅ Explain multi-stage builds in Dockerfile.
+	
+	Multi-stage builds help create smaller, optimized images.
+
+	✅ You use multiple FROM statements:
+	
+		First stage: build app
+		
+		Final stage: copy only what is needed for runtime
+		
+		
+		SAMPLE illustration :
+		
+		# Stage 1: Build
+		FROM golang:1.20 AS builder
+		WORKDIR /app
+		COPY . .
+		RUN go build -o myapp
+		
+		# Stage 2: Runtime
+		FROM alpine:latest
+		WORKDIR /app
+		COPY --from=builder /app/myapp .
+		CMD ["./myapp"]
+		
+		
+	✅ Benefit:
+
+		Final image only contains runtime binaries.
+		
+		Build dependencies aren’t shipped → smaller, safer images.
+		
+
+
+✅ What is Docker Compose? How is it useful?
+	Docker Compose is a tool to define and run multi-container Docker applications.
+
+	✅ Use a docker-compose.yml file to:
+
+		Define services
+		
+		Set up networking
+		
+		Configure volumes
+		
+		Set environment variables
+	
+	✅ Why useful:
+
+		Easy local development
+		
+		Start multiple services with one command:
+		
+		
+✅ What is the difference between ENTRYPOINT and CMD?
+
+|                  | ENTRYPOINT                                 | CMD                                |
+| ---------------- | ------------------------------------------ | ---------------------------------- |
+| **Purpose**      | Defines the main container process         | Provides default arguments         |
+| **Overridable?** | No (unless overridden with `--entrypoint`) | Yes (can override at `docker run`) |
+| **Usage**        | Use for fixed commands                     | Use for default args               |
+
+
+	✅ Quick rule of thumb:
+	
+		Use ENTRYPOINT when you always want a fixed command.
+		
+		Use CMD to supply default values that can be overridden.
+		
+
+✅ How do you optimize Docker images?
+🔧 Techniques to optimize:
+
+	Use smaller base images (e.g., alpine, slim variants).
+	
+	Use multi-stage builds to separate build dependencies from runtime.
+	
+	Combine related RUN commands to reduce layers:
+	
+	Remove unnecessary files (logs, caches, temp files).
+
+	Use .dockerignore to exclude files/folders not needed in the image.
+	
+	Pin versions for better caching.
+	
+	
+	
+✅ Explain the role of Docker Registry (Docker Hub vs private registry).
+	🔧 Docker Registry:
+	
+		A storage and distribution system for Docker images.
+	
+	✅ Docker Hub (public registry):
+	
+		Default registry (docker pull nginx actually pulls from Docker Hub).
+	
+		Free tier with public repositories, paid plans for private repos.
+	
+	✅ Private Registries (self-hosted or cloud providers):
+	
+		Used for enterprise security, control, compliance.
+	
+		Examples:
+		
+		AWS ECR (Elastic Container Registry)
+		
+		Azure Container Registry (ACR)
+		
+		Google Artifact Registry
+		
+		Harbor (open-source)
+		
+		
+		
+✅ How do you secure Docker containers?
+	🔐 Best practices:
+	
+	Use official, verified base images.
+	
+	Run containers as non-root users.
+	
+	Limit container privileges (--cap-drop, --security-opt).
+	
+	Use read-only file systems (--read-only).
+	
+	Limit exposed ports.
+	
+	Use secrets management (not hardcoded passwords).
+	
+	Keep Docker engine updated.
+	
+	Regularly scan images for vulnerabilities.
+	
+	
+✅ How do you handle container resource limits (CPU/Memory)?
+
+	By default, Docker containers can consume unlimited resources of the host. You control limits with flags:
+	
+		✅ Memory:
+		docker run -m 512m my-image
+	
+		✅ CPU:
+		docker run --cpus="1.5" my-image
+	
+		✅ Docker Compose:
+		deploy:
+			resources:
+				limits:
+					cpus: '1.0'
+					memory: 512M
+	
+	✅ Benefits:
+
+		Prevents one container from starving others.
+		
+		Helps with resource planning in production.
+		
+		
+
+✅ How do you debug a failed Docker build?
+🔍 Steps:
+
+	Add --progress=plain to see more verbose logs.
+
+		docker build --progress=plain .
+	
+	Use docker history <image> to inspect layers.
+	
+	Use intermediate RUN steps with echo or ls to verify files exist.
+	
+	Test build commands manually in a base image container.
+	
+	Check Dockerfile syntax (missing context, invalid paths).
+	
+	Use smaller build context (.) to avoid unnecessary file uploads.
+	
+	
+✅ Explain difference between bridge, host, and overlay networks.
+
+| Network Type | Description                                         | Use Case                             |
+| ------------ | --------------------------------------------------- | ------------------------------------ |
+| **bridge**   | Default network; containers on same host can talk   | Most local development               |
+| **host**     | Container shares host network stack (no isolation)  | High-performance use-cases           |
+| **overlay**  | Allows containers on different hosts to communicate | Docker Swarm / multi-host networking |
+
+
+
+
+✅ How do you scan Docker images for vulnerabilities?
+	🔐 Tools for image scanning:
+	
+		Docker Scan (powered by Snyk):	docker scan my-image
+		
+		Trivy (lightweight, fast open-source scanner):	trivy image my-image
+		
+		Clair, Anchore, Aqua Security (enterprise tools)
+	
+		Integrated cloud registries (ECR, ACR, GCR all support scanning).
+	
+	✅ Best practice:
+	
+	Integrate scanning into CI/CD pipeline.
+	
+	Fail builds on critical vulnerabilities.
+	
+	
+	
+✅ Describe how you containerized a legacy application.
+	🔧 General steps:
+	
+	1️. Understand the app dependencies:
+	
+		OS packages, language runtimes, database connections, storage, config files.
+	
+	2️. Create Dockerfile:
+	
+		Pick a base image (e.g., ubuntu, alpine, node, tomcat etc.)
+		
+		Install dependencies using RUN.
+		
+		Copy app code using COPY.
+		
+		Expose required ports via EXPOSE.
+		
+		Set entrypoint or startup commands.
+	
+	3️. Handle external dependencies:
+	
+		Externalize configs (env vars, config files, secrets).
+		
+		Mount volumes if app writes files locally.
+	
+	4️. Testing & debugging:
+	
+		Build locally → run → fix issues (file paths, network configs).
+		
+	5️. Create docker-compose for multi-service dependencies (DB, Cache).
+	
+	
+✅ How would you handle logs in production containers?
+	🔧 Key rule: Don’t log to files inside container → log to stdout/stderr.
+	
+	✅ Why?
+	
+		Docker captures stdout/stderr → log drivers handle storage.
+	
+	✅ Logging options:
+	
+		Use centralized logging tools:
+		
+		ELK stack (Elasticsearch + Logstash + Kibana)
+		
+		EFK stack (Fluentd instead of Logstash)
+		
+		Promtail + Loki + Grafana
+		
+		Cloud provider solutions: AWS CloudWatch, Azure Monitor, GCP Stackdriver.
+		
+	docker logs <container-id>
+
+	✅ Production best practice:
+
+		Use log aggregation agent as sidecar or host agent.
+		
+		Structure logs (JSON logs are easier to parse).
+		
+		
+
+✅ How do you update running containers in production?
+	🧼 Containers are immutable → you don’t update containers directly.
+
+	✅ Update flow:
+		1️. Build new Docker image with updated code/config.
+		2️. Push updated image to Docker Registry.
+		3️. Pull new image on production nodes.
+		4️. Stop existing containers.
+		5️. Start new containers with updated image.
+
+	✅ In orchestration (K8s, Swarm):
+
+		Update deployment/service → orchestrator handles replacement.
+
+	✅ Never patch containers directly.
+	
+	
+
+✅ What happens if your Docker container crashes?
+	🚨 Behavior depends on restart policy:
+
+	✅ Without restart policy:
+
+		Container exits → remains stopped (Exited status).
+
+	✅ With restart policy:	docker run --restart=always my-app
+
+	Docker automatically restarts the crashed container.
+	
+	✅ In orchestration (Kubernetes/Swarm):
+
+		Controller automatically restarts failed containers as per pod replica definition.
+
+	✅ Root Cause Debugging:
+
+		Check logs: docker logs <container-id>
+		
+		Inspect container exit code and resource usage.
+		
+		Check OOM kills or segfaults.
+		
+		
+
+✅ How do you handle rolling updates in Docker Swarm/Kubernetes?
+
+	🌀 In Docker Swarm:
+	
+	docker service update --image my-app:2.0 my-service
+	
+	Swarm will perform rolling update automatically.
+	
+	✅ Control with flags:	docker service update --update-parallelism 2 --update-delay 10s my-service
+		
+		Updates 2 containers at a time, 10 sec delay.
+		
+	🌀 In Kubernetes:
+	
+	✅ Native rolling updates:
+
+		When you update Deployment object, K8s triggers rolling update:
+		
+		kubectl set image deployment/my-app my-app=my-app:2.0
+
+	✅ Control rollout behavior:
+	
+	
+		strategy:
+			type: RollingUpdate
+			rollingUpdate:
+					maxUnavailable: 1
+					maxSurge: 2
+	✅ You can pause, resume, or rollback rollouts.
+	
+	
+	
+⚠️ Common Docker Issues in Interviews
+
+| Issue                  | Cause                                 | Resolution                               |
+| ---------------------- | ------------------------------------- | ---------------------------------------- |
+| High image size        | Unoptimized Dockerfile                | Use multi-stage builds, slim base images |
+| Port conflict          | Host port used by another app         | Map to a different host port             |
+| File permission issues | UID mismatch between host & container | Use `USER` in Dockerfile                 |
+| Network unreachable    | Misconfigured Docker network          | Use correct bridge or overlay network    |
+
+
+
+🛡️ Docker Best Practices (Interview GOLD)
+
+	Use official base images and keep them updated.
+	
+	Use multi-stage builds to reduce image size.
+	
+	Always define HEALTHCHECK in Dockerfile.
+	
+	Limit container privileges (read-only filesystem, drop capabilities).
+	
+	Use secrets management (avoid hardcoded credentials).
+	
+	Clean up unused containers, images, and volumes (docker system prune).
+	
+	
+✅ Namespaces
+	🔧 What are namespaces?
+	
+	Linux kernel feature that provides isolation for containers.
+	
+	Each container gets its own "view" of system resources.
+	
+	| Namespace | What it isolates           | Example                                    |
+	| --------- | -------------------------- | ------------------------------------------ |
+	| `pid`     | Process IDs                | Each container sees only its own processes |
+	| `mnt`     | Filesystem mounts          | Own filesystem hierarchy                   |
+	| `net`     | Network interfaces         | Own network stack (IP, interfaces, routes) |
+	| `ipc`     | Interprocess Communication | Own shared memory, semaphores              |
+	| `uts`     | Hostname                   | Each container has its own hostname        |
+	| `user`    | User IDs                   | Map user IDs inside the container          |
+	
+	
+	✅ Why namespaces?
+	
+	Containers don’t interfere with each other or the host.
+	
+	Gives process-level isolation.
+	
+✅ cgroups (Control Groups)
+	🔧 What are cgroups?
+	
+	Kernel feature that controls resource allocation for processes.
+	
+	Used by Docker to limit and track resource usage for containers.
+	
+	Resources managed by cgroups:
+	
+	| Resource | What it controls                   |
+	| -------- | ---------------------------------- |
+	| CPU      | Limit number of CPU cores / shares |
+	| Memory   | Limit RAM usage                    |
+	| Disk I/O | Limit disk read/write              |
+	| Network  | Limit network bandwidth            |
+
+
+	🔧 ✅ Why cgroups?
+	
+	Prevents one container from consuming all resources.
+	
+	Supports container resource isolation & fair usage.
+	
+	
+	
+✅ Image Layers
+	🧱 What are Docker image layers?
+	
+		Docker builds images in layers.
+		
+		Each instruction in your Dockerfile (e.g., FROM, RUN, COPY, ADD) creates a new layer.
+		
+		
+	🧱 Why layers?
+
+		Efficient caching.
+		
+		If a layer hasn’t changed, Docker reuses it (speeds up rebuilds).
+		
+		Allows small incremental changes.
+		
+		
+		
+✅ Build Context
+	📦 What is build context?
+
+		The directory you pass to docker build.
+		
+		Docker sends the entire context (files, folders) to the Docker daemon when building an image.
+		
+	✅ Why build context matters?
+
+		Larger build context = slower builds.
+		
+		May accidentally include unnecessary files (bloating the image).
+
+	✅ Solution: Use .dockerignore
+	
+		Exclude files not needed for build.
+		
+	✅ This makes builds:
+
+		Faster
+		
+		Cleaner
+		
+		Safer (prevents sensitive files being copied into image)
