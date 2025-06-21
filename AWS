@@ -1,0 +1,788 @@
+🌐 AWS Key Concepts
+
+✅ 1. Compute
+
+| Service                         | Description                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------ |
+| **EC2**                         | Virtual machines in the cloud. Choose instance types based on vCPU, memory, network. |
+| **Auto Scaling Groups (ASG)**   | Automatically scale EC2s based on demand.                                            |
+| **Elastic Load Balancer (ELB)** | Distributes traffic to EC2 instances (ALB, NLB, CLB).                                |
+| **Lambda**                      | Serverless function execution. Runs code without provisioning servers.               |
+
+
+
+✅ 2. Storage
+
+| Service     | Description                                             |
+| ----------- | ------------------------------------------------------- |
+| **S3**      | Object storage for files, backups, and static websites. |
+| **EBS**     | Block storage for EC2. Persistent storage volumes.      |
+| **EFS**     | NFS file system for sharing data across EC2 instances.  |
+| **Glacier** | Long-term archival storage.                             |
+
+
+
+✅ 3. Networking
+
+| Service                  | Description                                                        |
+| ------------------------ | ------------------------------------------------------------------ |
+| **VPC**                  | Isolated network in AWS. Contains subnets, route tables, gateways. |
+| **Subnets**              | Logical segments (public/private).                                 |
+| **Security Groups**      | Virtual firewalls for EC2 instances.                               |
+| **NACLs**                | Stateless firewalls at the subnet level.                           |	Network Access Control List
+| **Route 53**             | DNS and routing service.                                           |
+| **VPN / Direct Connect** | Secure network connections to AWS.                                 |
+
+
+✅ 4. IAM & Security
+
+| Service                               | Description                                           |
+| ------------------------------------- | ----------------------------------------------------- |
+| **IAM**                               | Manage users, roles, groups, and permissions.         |
+| **Roles & Policies**                  | Assign least-privilege permissions to services/users. |
+| **KMS**                               | Key Management Service for encryption keys.           |
+| **Secrets Manager / Parameter Store** | Secure secret storage.                                |
+
+
+
+✅ 5. Database & Messaging
+
+| Service         | Description                                           |
+| --------------- | ----------------------------------------------------- |
+| **RDS**         | Managed relational databases (MySQL, Postgres, etc.). |
+| **DynamoDB**    | NoSQL key-value database.                             |
+| **ElastiCache** | Redis or Memcached in-memory cache.                   |
+| **SQS**         | Fully managed message queue.                          |
+| **SNS**         | Pub/Sub notification service.                         |
+
+
+
+✅ 6. Monitoring & Observability
+
+| Service        | Description                            |
+| -------------- | -------------------------------------- |
+| **CloudWatch** | Metrics, logs, dashboards, and alarms. |
+| **CloudTrail** | Audit logs for AWS API activity.       |
+| **X-Ray**      | Distributed tracing for apps.          |
+
+
+✅ 7. DevOps & Automation
+
+| Service                                   | Description                         |
+| ----------------------------------------- | ----------------------------------- |
+| **CloudFormation**                        | IaC to provision AWS resources.     |
+| **CodePipeline / CodeBuild / CodeDeploy** | AWS CI/CD tools.                    |
+| **Systems Manager (SSM)**                 | Manage EC2s remotely and securely.  |
+| **Terraform (not AWS-native)**            | Used widely to provision AWS infra. |
+
+
+
+
+
+🧠 Top AWS Interview Questions (Grouped by Topics)
+
+🔹 IAM, SECURITY, & NETWORKING
+
+
+✅ What is the difference between IAM roles and IAM users?
+
+| Feature     | IAM User                           | IAM Role                                       |
+| ----------- | ---------------------------------- | ---------------------------------------------- |
+| Identity    | Permanent                          | Temporary                                      |
+| Use Case    | Human access (login, CLI, SDK)     | Application or service access (e.g. EC2 to S3) |
+| Credentials | Username + password or access keys | No credentials — uses **STS** tokens           |
+| Assigned To | Person                             | AWS service or federated user                  |
+| Rotation    | Manual                             | Automatic (via STS)                            |		Security service token
+
+
+
+✅ How do Security Groups differ from NACLs?
+
+
+| Feature         | Security Group      | Network ACL (NACL)                |
+| --------------- | ------------------- | --------------------------------- |
+| Operates at     | Instance level      | Subnet level                      |
+| Stateful        | ✅ Yes              | ❌ No                              |
+| Rules           | Only **allow**      | **Allow and deny**                |
+| Applies to      | EC2 instances, ENIs | Entire subnet                     |
+| Rule evaluation | All rules evaluated | Rules evaluated in numbered order |
+
+
+"Security Groups are stateful firewalls at the instance level, while NACLs are stateless filters at the subnet level."
+
+
+
+✅ How do you restrict S3 access to specific IPs or users?
+
+	✅ You can use:
+
+		S3 Bucket Policy (preferred for access control)
+		
+		IAM Policy (per-user/service restriction)
+	
+				
+				{
+				"Version": "2012-10-17",
+				"Statement": [
+					{
+					"Sid": "IPAllow",
+					"Effect": "Deny",
+					"Principal": "*",
+					"Action": "s3:*",
+					"Resource": [
+						"arn:aws:s3:::your-bucket",
+						"arn:aws:s3:::your-bucket/*"
+					],
+					"Condition": {
+						"NotIpAddress": {
+						"aws:SourceIp": "203.0.113.0/24"
+						}
+					}
+					}
+				]
+				}
+		
+	✅ You can also:
+
+		Use VPC Endpoint policies to allow access only from specific VPCs.
+		
+		Add MFA/STS Conditions to IAM policies. 
+		
+	
+	
+✅ Explain VPC, subnets, route tables, IGW, and NAT Gateway.
+
+
+| Component                       | Purpose                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------- |
+| **VPC (Virtual Private Cloud)** | Your isolated virtual network in AWS                                        |
+| **Subnets**                     | Logical subdivisions of VPC (can be public or private)                      |
+| **Route Tables**                | Define network traffic flow (e.g. internet, internal VPC)                   |
+| **Internet Gateway (IGW)**      | Allows **internet access** for public subnets                               |
+| **NAT Gateway**                 | Allows **private subnets to access internet** (but not be accessed from it) |
+
+
+	✅ Diagram flow:
+	
+          ┌─────────────┐
+          │  IGW        │  <- Public Internet
+          └────┬────────┘
+               │
+         ┌─────▼────────┐
+         │ Public Subnet (e.g. EC2 Bastion) │
+         └─────┬────────┘
+               │
+       ┌───────▼────────┐
+       │ Private Subnet │ → NAT Gateway → IGW (for outbound only)
+       └────────────────┘
+
+
+
+
+✅ What is the difference between public and private subnets?
+
+
+| Type            | Public Subnet           | Private Subnet            |
+| --------------- | ----------------------- | ------------------------- |
+| IGW route       | Has route to IGW        | No route to IGW           |
+| Internet access | Direct inbound/outbound | Only outbound (via NAT)   |
+| Example use     | Bastion host, public LB | DB servers, internal apps |
+| Route Table     | Contains IGW route      | Only local + NAT route    |
+
+
+"Public subnets are internet-facing, while private subnets are isolated and access internet only through a NAT gateway."
+
+
+
+
+🔹 EC2 & SCALING
+
+
+
+✅ How do you launch a high-availability EC2 setup?
+
+	To achieve high availability with EC2:
+	
+		1. Use Auto Scaling Group (ASG):
+	
+			Ensures instances run across multiple Availability Zones (AZs).
+	
+			Automatically replaces unhealthy instances.
+	
+		2. Launch EC2 in a Multi-AZ setup:
+	
+			Select subnets from different AZs in the same region.
+			
+			Example: us-east-1a, us-east-1b, us-east-1c.
+	
+		3. Place behind an Elastic Load Balancer (ELB):
+	
+			Spreads traffic across multiple healthy instances.
+	
+			Integrated health checks.
+	
+		4. Store persistent data in EFS or S3, not local disk.
+		
+		
+
+✅ What is the difference between On-Demand, Reserved, and Spot Instances?
+
+| Type          | Use Case                            | Billing               | Pros             | Cons                       |
+| ------------- | ----------------------------------- | --------------------- | ---------------- | -------------------------- |
+| **On-Demand** | Short-term, unpredictable workloads | Per-second/hour       | No commitment    | Expensive long-term        |
+| **Reserved**  | Steady workloads (1–3 yrs)          | Upfront or partial    | Big cost savings | Long-term commitment       |
+| **Spot**      | Fault-tolerant, flexible workloads  | Bidding model (cheap) | 70–90% savings   | Can be terminated any time |
+
+
+"On-Demand for flexibility, Reserved for cost-effective predictable workloads, and Spot for cheap, interruptible batch/ML tasks."
+
+
+
+✅ How does Auto Scaling work with ELB?
+
+	Auto Scaling + ELB ensures resilient and scalable architecture:
+	
+	1. Auto Scaling Group (ASG):
+	
+		Launches/replaces EC2 instances.
+		
+		Uses scaling policies based on metrics (CPU, memory, etc.).
+	
+	2. Elastic Load Balancer (ALB/ELB):
+	
+		Distributes traffic to healthy instances.
+		
+		Health checks determine if an instance should be in service.
+	
+	3. How it works together:
+	
+		ASG automatically registers new EC2s with the ELB.
+		
+		When traffic increases, ASG adds instances → ELB balances load.
+		
+		If instances fail or are removed, ELB stops sending traffic.
+
+	✅ One-liner:
+	
+	"Auto Scaling and ELB integrate to automatically add/remove instances based on demand and distribute traffic only to healthy nodes."
+	
+	
+	
+✅ How do you troubleshoot a failed EC2 instance boot?
+
+	🧪 Steps to troubleshoot:
+	
+	1. Check EC2 console logs:
+	
+		View system logs in EC2 dashboard → Monitor → Get System Log.
+	
+	2. Check instance state & status checks:
+	
+		Two checks: System status (AWS infra), Instance status (OS boots).
+	
+	3. Try connecting via EC2 Serial Console (for Nitro instances):
+	
+		Good for no-SSH scenarios (e.g. boot loop, fstab issues).
+	
+	4. Detach root volume → Attach to working EC2:
+	
+		Mount volume, fix issues (e.g., bad fstab, misconfig, disk full).
+	
+		Reattach volume and reboot instance.
+	
+	5. CloudWatch metrics:
+	
+		Check CPU usage, disk I/O, network metrics to detect bottlenecks.
+	
+	✅ One-liner:
+	
+	"Check EC2 logs, status checks, use EC2 serial console or volume recovery techniques to debug and fix boot-level failures."
+	
+	
+
+
+
+🔹 S3 & STORAGE
+
+✅ How do you make an S3 bucket secure?
+	
+	To secure an S3 bucket:
+	
+	1. Block Public Access (default):
+	
+		Enable “Block all public access” at bucket/account level.
+	
+	2. Bucket Policies:
+	
+		Restrict access to specific users, VPCs, or IP ranges using fine-grained JSON policies.
+	
+	3. IAM Policies:
+	
+		Grant least-privilege access using IAM roles or user policies.
+	
+	4. Enable Encryption:
+	
+		At rest: SSE-S3 (default), SSE-KMS, or SSE-C.
+	
+		In transit: HTTPS enforced.
+	
+	5. Enable Access Logging:
+	
+		Track requests using S3 server access logs or CloudTrail.
+	
+	6. Enable MFA Delete:
+	
+		Adds protection for delete operations (especially for versioned buckets).
+	
+	✅ One-liner:
+	
+	"I secure S3 using blocked public access, least-privilege IAM & bucket policies, encryption, logging, and optionally MFA Delete."
+	
+	
+
+✅ What’s the difference between S3, EBS, and EFS?
+
+| Feature     | S3                          | EBS                               | EFS                          |
+| ----------- | --------------------------- | --------------------------------- | ---------------------------- |
+| Type        | Object storage              | Block storage                     | Network file system          |
+| Use Case    | Static files, backups, logs | EC2 root/attached volumes         | Shared file system           |
+| Access      | HTTP/HTTPS (via API)        | Attached to a single EC2 instance | Mounted by multiple EC2s     |
+| Durability  | 99.999999999% (11 9’s)      | High                              | High                         |
+| Scalability | Virtually unlimited         | Limited to size/type              | Automatically scales         |
+| Example     | Images, logs, backups       | OS, app DB                        | Shared configs, ML workloads |
+
+
+
+"S3 stores objects via API, EBS provides block storage to EC2, and EFS offers shared POSIX file systems."
+
+	❗ Important Note
+		You cannot boot an EC2 instance from S3.
+		
+		You cannot attach an S3 bucket as a block device.
+		
+		
+		
+✅ How can versioning and lifecycle rules be used in S3?
+	
+	🧾 Versioning:
+	
+		Stores every version of an object.
+		
+		Helps recover from accidental deletions or overwrites.
+		
+		Required for MFA Delete and better compliance.
+	
+	🛠️ Lifecycle Rules:
+	
+		Automate transitions and deletions:
+		
+		Move from Standard → Infrequent Access → Glacier → Delete.
+		
+		Set expiration for old versions or incomplete uploads.
+		
+	"Versioning protects against data loss, and lifecycle rules automate cost-saving transitions and cleanup."
+	
+	
+	
+✅ How do you transfer large datasets into S3 efficiently?
+
+
+	1. Multipart Upload:
+	
+		Split large files into chunks (up to 10,000 parts).
+		
+		Upload in parallel for speed and reliability.
+	
+	2. AWS CLI with --recursive + --storage-class options:
+	
+	
+	3. S3 Transfer Acceleration:
+
+		Uses AWS edge locations for faster global uploads via optimized routes.
+
+	4. AWS Snowball / Snowmobile:
+	
+		AWS Snowball is a data migration and edge computing device used to transfer large volumes of data to and from AWS, especially when network bandwidth is limited or too slow for practical uploads/downloads.
+
+		For petabyte-scale data.
+
+		Physically ship encrypted device to AWS for ingestion.
+
+	5. AWS DataSync:
+
+		Managed service for large-scale online transfers (NFS, SMB to S3).
+		
+		
+		
+
+🔹 SERVERLESS
+
+
+✅ When would you use Lambda over EC2?
+
+| Use Case                       | Why Lambda?                                           |
+| ------------------------------ | ----------------------------------------------------- |
+| Event-driven architecture      | Automatically triggered by S3, API Gateway, SNS, etc. |
+| Short-lived tasks              | Billed per ms, no server to manage                    |
+| Serverless architecture        | Zero infrastructure setup                             |
+| Low ops overhead               | Auto-scaled, managed by AWS                           |
+| Infrequent or bursty workloads | Cost-effective vs always-on EC2                       |
+
+
+"I use Lambda when I want to run code in response to events without managing servers, and EC2 when I need full control over the OS, longer runtimes, or persistent state."
+
+
+
+✅ How do you secure Lambda functions?
+
+
+	To secure Lambda:
+	
+	1. IAM Execution Role (Least Privilege):
+	
+		Only allow specific services/resources (e.g., only access S3:GetObject on a certain bucket).
+	
+	2. VPC Access Control:
+	
+		If accessing private resources, attach to VPC + use security groups/NACLs.
+	
+	3. Environment Variable Encryption:
+	
+		Encrypt sensitive values with KMS.
+	
+		Enable encryption at rest by default.
+	
+	4. Code Signing:
+	
+		Verify source of deployment package to prevent tampering.
+	
+	5. Enable AWS WAF (if behind API Gateway):
+	
+		Add rate limiting and protection against injection attacks.
+	
+	6. Logging and Monitoring:
+	
+		Use CloudWatch Logs, X-Ray, and alarms for observability.
+		
+	"Lambda is secured by limiting permissions via IAM roles, encrypting variables, using VPCs wisely, and monitoring through CloudWatch."
+	
+	
+
+	
+✅ What are Lambda execution roles and limits?
+
+🟢 Lambda Execution Role (IAM role):
+
+	Allows Lambda to access other AWS services like S3, DynamoDB, SNS, etc.
+	
+	Must attach an IAM policy granting specific actions.
+	
+	{
+	"Effect": "Allow",
+	"Action": ["s3:GetObject"],
+	"Resource": "arn:aws:s3:::my-bucket/*"
+	}
+
+🛑 Lambda Limits (as of 2024):
+
+	| Limit                   | Value                                     |
+	| ----------------------- | ----------------------------------------- |
+	| Max timeout             | **15 minutes**                            |
+	| Memory                  | 128 MB to 10,240 MB                       |
+	| Package size            | 50 MB zipped (direct), 250 MB with layers |
+	| Concurrency             | 1,000 (soft limit, can request increase)  |
+	| Ephemeral disk (`/tmp`) | 512 MB (can go up to 10 GB with EFS)      |
+	| Max env vars            | 4 KB                                      |
+	| Max function layers     | 5 layers                                  |
+
+
+	"Lambda execution roles grant service access; limits include 15 min runtime, 10 GB memory, and concurrency controls to prevent overload."
+	
+
+🔹 DevOps & CI/CD
+
+
+✅ How do you deploy a blue-green environment using CodeDeploy?
+
+Blue-Green Deployment with CodeDeploy (for EC2 or ECS):
+	
+	1. Setup Two Environments:
+	
+		Blue = current production.
+	
+		Green = new version (staged).
+	
+	2. Use CodeDeploy Application + Deployment Group:
+	
+		Specify deployment type: Blue/Green.
+	
+		Choose traffic shifting strategy (all-at-once, canary, linear).
+	
+	3. Deploy New Version (Green):
+	
+		CodeDeploy updates the Green environment.
+	
+		Runs hooks (BeforeInstall, AfterInstall, ValidateService).
+	
+	4. Traffic Cutover:
+	
+		Automatically reroutes traffic (via ALB) from Blue → Green.
+	
+		Option to monitor and rollback if needed.
+		
+	✅ Benefits:
+
+		Zero downtime.
+		Safe rollback.
+		Controlled validation before full switch.
+		
+
+	"With CodeDeploy Blue/Green, I deploy to a new environment, validate, and then shift traffic safely using ALB routing or ECS task replacement."
+	
+	
+
+✅ What are the benefits of using CloudFormation over manual setup?
+
+
+	| Manual Setup      | CloudFormation (IaC)                   |
+	| ----------------- | -------------------------------------- |
+	| Click-heavy       | Declarative YAML/JSON                  |
+	| Hard to replicate | Reusable, version-controlled templates |
+	| Prone to errors   | Consistent and idempotent              |
+	| No rollback       | Built-in rollback on failure           |
+	| No tracking       | Drift detection, stack history         |
+	
+
+	✅ CloudFormation Advantages:
+	
+		Automates full infrastructure setup.
+		
+		Tracks changes over time.
+		
+		Integrates with pipelines (CodePipeline, Jenkins).
+		
+		Reproducible environments (dev/stage/prod).
+		
+		
+		
+✅ How does Terraform differ from CloudFormation?
+
+	
+	| Feature             | **Terraform**            | **CloudFormation**        |
+	| ------------------- | ------------------------ | ------------------------- |
+	| Language            | HCL (easy to read)       | JSON/YAML                 |
+	| Multi-cloud support | ✅ Yes                   | ❌ AWS-only                |
+	| State management    | External `.tfstate` file | Managed internally by AWS |
+	| Modules             | More flexible & reusable | Less modular              |
+	| Ecosystem           | Large open-source        | AWS-native                |
+	| Speed               | Faster for large stacks  | Slower in comparison      |
+	
+	
+	"Terraform supports multi-cloud and flexible modular IaC using HCL, while CloudFormation is AWS-native, tightly integrated, and managed by AWS."	
+	
+	
+	
+✅ How do you automate patching across EC2 instances?
+
+
+Use AWS Systems Manager (SSM) Patch Manager:
+
+	1. Ensure EC2s are SSM-enabled:
+
+		Install SSM agent.
+
+		Attach IAM role with AmazonSSMManagedInstanceCore.
+
+	2. Define Patch Baselines:
+
+		Set rules for critical/important updates.
+
+		Choose OS-specific rules (Amazon Linux, Ubuntu, Windows).
+
+	3. Create a Maintenance Window:
+
+		Define schedule (e.g. every Sunday 2 AM).
+
+	4. Attach Task to Maintenance Window:
+
+		Choose AWS-RunPatchBaseline automation document.
+
+		Monitor with CloudWatch Logs / SSM Compliance Reports.
+		
+			aws ssm send-command \
+				--document-name "AWS-RunPatchBaseline" \
+				--targets "Key=instanceIds,Values=i-1234567890abcdef0"
+		
+		
+	"I use SSM Patch Manager with patch baselines, maintenance windows, and automation documents to centrally manage EC2 patching at scale."
+	
+
+
+
+🔹 MONITORING & TROUBLESHOOTING
+
+
+✅ How do you monitor CPU usage in EC2?
+
+
+	Use Amazon CloudWatch:
+	
+	1. Built-in Metrics:
+	
+		EC2 instances publish default metrics like:
+	
+			CPUUtilization
+			
+			NetworkIn / NetworkOut
+			
+			DiskReadOps, StatusCheckFailed
+	
+	2. Steps:
+	
+		Go to CloudWatch → Metrics → EC2 → Per-Instance Metrics
+	
+		Select CPUUtilization for the desired instance.
+	
+	3. Create Alarms:
+	
+		Set thresholds (e.g., alert if CPU > 80% for 5 minutes).
+	
+		Notifications via SNS or Lambda triggers.  SNS >>> Simple notification service
+		
+		
+	"I use CloudWatch metrics and alarms to monitor EC2 CPU usage and trigger alerts if thresholds are crossed."
+
+
+	
+	
+✅ What is CloudWatch vs CloudTrail?
+
+	
+	| Feature   | **CloudWatch**                | **CloudTrail**                                  |
+	| --------- | ----------------------------- | ----------------------------------------------- |
+	| Purpose   | Monitoring & observability    | Audit & compliance logging                      |
+	| Captures  | Metrics, logs, events, alarms | API calls (who did what, when, where)           |
+	| Use case  | Performance monitoring        | Security, forensics, governance                 |
+	| Examples  | CPU, memory, logs, dashboards | `ec2:StartInstances`, `iam:CreateUser`          |
+	| Retention | User-defined                  | 90 days (default), can send to S3 for long-term |
+	
+	
+	🧠 Think of It Like:
+	
+	|            | **CloudWatch**                              | **CloudTrail**                 |
+	| ---------- | ------------------------------------------- | ------------------------------ |
+	| Like...    | A **monitoring dashboard** and alarm system | A **security camera logbook**  |
+	| Used by... | DevOps, SRE, Engineers                      | Auditors, Security, Compliance |
+	| Example    | "CPU is 95% – send an alert"                | "Who deleted the S3 bucket?"   |
+
+
+	"CloudWatch is for metrics and real-time monitoring, while CloudTrail is for auditing AWS API activity."
+
+
+
+✅ How do you trace a failed login or API call?
+
+	1. Enable CloudTrail (if not already):
+	
+		Logs all control plane actions (e.g. IAM, EC2, S3 API calls).
+	
+		Can be sent to S3 + CloudWatch Logs.
+	
+	2. Search for Events:
+	
+		Go to CloudTrail → Event History.
+	
+		Filter by:
+	
+			Event name (e.g. ConsoleLogin, AssumeRole)
+			
+			Username / IAM role
+			
+			Event Source (e.g. signin.amazonaws.com)
+			
+			ErrorCode (e.g. AccessDenied, AuthFailure)
+	
+	3. Details to Look For:
+	
+		Source IP
+		
+		User agent
+		
+		Timestamp
+		
+		Resource targeted
+		
+		
+	Example : Failed console login attempt?
+
+		Look for ConsoleLogin events.
+		
+		Check responseElements->ConsoleLogin = Failure.
+		
+		
+	"I use CloudTrail to trace failed logins or denied API calls by filtering event history for error codes, actions, and IPs."
+	
+
+
+
+🔹 REAL-WORLD SCENARIOS
+
+✅ You have an EC2 instance in a private subnet. How will you SSH into it?
+
+🔐 Answer: Use a Bastion Host (Jump Box)
+
+"I use a Bastion Host in a public subnet to proxy SSH access to the EC2 in the private subnet, securing access through SG rules."
+
+	Steps:
+	
+	Launch a Bastion Host EC2 in a public subnet with a public IP.
+	
+	SSH into the Bastion using its public IP:
+	
+	
+	ssh -i key.pem ec2-user@<bastion-ip>
+	
+	From Bastion, SSH into the private EC2 using its private IP:
+	
+	
+	ssh -i key.pem ec2-user@<private-instance-ip>
+	
+	Security Setup:
+	
+		Security Group of Bastion: Allow SSH from your IP.
+		
+		Security Group of private EC2: Allow SSH from Bastion's private IP or security group.
+		
+		
+
+
+✅ How would you make an application resilient to AZ failure?
+
+
+	To ensure AZ-level resiliency:
+	
+		1. Multi-AZ Deployment:
+	
+			Deploy EC2 instances or containers across multiple Availability Zones.
+	
+			Use Auto Scaling Groups with subnets from different AZs.
+	
+		2. Use Elastic Load Balancer (ALB/NLB):
+	
+			Automatically routes traffic to healthy targets across AZs.
+	
+		3. Database:
+	
+			Use RDS Multi-AZ or Aurora (replicates across 3 AZs).
+	
+			For NoSQL: Use DynamoDB (multi-AZ by default).
+	
+		4. Stateless Application Design:
+	
+			Avoid local storage.
+	
+			Use S3, EFS, or ElastiCache for shared state.
+	
+		5. Failover Strategy:
+	
+			Implement health checks + automated failover for backend components.
