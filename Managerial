@@ -1,0 +1,169 @@
+✅ Questions You May Be Asked (Non-Technical)
+
+
+🌟 About You & Your Motivation
+
+✅ “Tell me about yourself — beyond your resume.”
+
+“Beyond my resume, I’m someone who thrives in solving real infrastructure challenges — not just writing Terraform or running Jenkins pipelines, but ensuring they actually work reliably at scale.
+Outside work, I enjoy simplifying complex systems, mentoring juniors informally, and diving into emerging tools — like GitHub Actions or Karpenter recently. 
+I’m also someone who values calm execution, even in on-call situations — I’ve learned that thoughtful action beats speed every time.”
+
+
+
+✅ “Why do you want to work with us?”
+“Two things stood out: your emphasis on solving real engineering problems with autonomy, and your culture of collaboration between Dev and Ops. 
+I’ve followed your engineering blog on how you approach microservices reliability and observability — and that philosophy aligns well with how I like to work.”
+
+
+
+✅ “What attracted you to this role specifically?”
+
+“This role sits at the sweet spot of everything I enjoy: hands-on infrastructure automation, building deployment pipelines, and ensuring reliability in production. 
+I’m especially excited by the chance to work cross-functionally with both developers and cloud teams — that’s where I’ve found my work has the most impact.”
+
+
+✅ “Where do you see yourself in 2–3 years?”
+
+“In 2–3 years, I see myself leading initiatives — whether it’s driving platform reliability, owning parts of the CI/CD system, or guiding junior engineers. I’d like to deepen my cloud expertise across multi-cloud or container orchestration and eventually become a go-to person for DevOps architecture decisions.”
+
+
+✅ “What does success look like to you?”
+
+“To me, success is a mix of delivering impact and growing along the way. On a day-to-day level, it’s pushing reliable code to production, reducing manual toil, and improving team velocity. At a bigger level, it’s about building systems that people can trust, and contributing to a team where knowledge is shared and not siloed.”
+
+
+
+🤝 On Collaboration & Ownership
+
+✅ Tell me about a time you took complete ownership of a task.
+
+	At Oracle, I once discovered that multiple GCP projects lacked centralized IAM role provisioning. This caused permission mismatches and delays in onboarding.
+	I took ownership without being asked — I designed a reusable Terraform module that automated service account creation, IAM bindings, and log sink setups across 70+ projects. 
+	I coordinated with security, infra, and app teams to roll it out.
+	The new module reduced onboarding from hours to minutes and became the organization's default. It was satisfying to go from spotting a gap to delivering a standardized, scalable solution.
+	
+	
+	I worked closely with senior team members on a greenfield project to provision and configure new AXWS servers for a client rollout. These servers acted as the web interface for Dynamics AX and were deployed across both non-prod and prod environments. I initially shadowed multiple people to understand various components — like IIS setup, SSL configuration, domain integration, and load balancer registration — and soon became the go-to person for assisting the rest of the team. I helped with configurations, troubleshooting deployment errors, and ensuring consistency across environments.
+	
+
+✅ How do you work with cross-functional teams or stakeholders?
+
+	I focus on clarity and empathy. For example, during a Kafka-Zookeeper deployment on Kubernetes, I collaborated with the software engineering team to finalize architecture and resource planning, while working with the infra team to allocate PVCs and load balancer IPs.
+	I schedule syncs when needed, share progress proactively via Slack or Jira, and keep tech and non-tech stakeholders informed with just the right level of detail. It’s about translating requirements into actionable infra plans and ensuring no one is blocked.
+	
+
+
+✅ What do you do when your priorities conflict with someone else’s?
+	
+	I first seek context: Why is their priority urgent? Is it driven by business impact, SLAs, or just misalignment?
+	Then I offer transparency about my workload and timelines. If it’s genuinely critical, I’ll reshuffle my tasks or loop in the manager to re-prioritize as a team. I’ve found that most conflicts are resolved through early and open communication, not escalation.
+	
+	
+✅ How do you handle disagreements or pushback?
+	
+	I try to understand the reasoning behind the pushback — is it technical, operational, or based on risk? I avoid taking it personally and focus on the problem, not the person.
+	For example, when I proposed switching to GitOps via ArgoCD, one team resisted citing rollout risks. Instead of debating, I offered a parallel pilot setup. After we showed lower failure rates and faster rollback, the team adopted it willingly.
+	I believe in showing data, being flexible in approach, and prioritizing trust over being “right.”
+	
+	
+✅ Can you describe a challenging project and how you adapted?
+
+	One of the most challenging projects I handled was a backend migration to GCP, where Apigee proxies began returning 503 errors during cutover. Initially, logs and Terraform showed everything was provisioned, but the proxy kept failing.
+	
+	I dug deep into the DNS layer and discovered that the issue was a missing VIP configuration — the hostname wasn't resolving because the Global Load Balancer entry hadn't been applied correctly.
+	
+	Instead of escalating or waiting, I enabled service metadata, manually created the missing VIP via Terraform, updated HAProxy via SaltStack, and coordinated with the app team in real time. The service was restored in minutes.
+	
+	
+				resource "google_compute_address" "vip" {
+					name         = "my-vip-address"
+					region       = "us-central1"  # or use `global` for global IP
+					address_type = "EXTERNAL"     # or "INTERNAL"
+				}
+
+	
+	This experience taught me the value of staying calm under pressure and being proactive in ambiguous, high-stakes situations.
+	
+																		OR 
+																		
+																		
+	One of the most challenging projects I worked on involved deploying new AXWS (Application Execution Web Server) instances for a large client across both non-production and production environments. This was part of a Dynamics AX setup, and it required strict adherence to environment-specific configurations, secure IIS setup, domain integration, and coordination with multiple teams.
+
+	Initially, I wasn’t fully familiar with all the components involved — especially the SSL setup in IIS, domain controller dependencies, and load balancer registration in AWS. 
+	To adapt quickly, I shadowed multiple senior engineers simultaneously, took detailed notes, and began documenting the steps for consistency.
+	
+	As the deployments progressed, I proactively started helping the rest of the team by replicating the setups, troubleshooting issues during role and feature installs on Windows EC2 instances, and validating connectivity between the AXWS layer and the backend AOS. 
+	I also collaborated with the network and domain teams to resolve DNS propagation and firewall-related issues in real-time.
+	
+	What made it particularly challenging was the need to adapt to multiple people's working styles and switch between different environments, ensuring no misconfiguration occurred between staging and production.
+	
+	By the end of the project, I had effectively become the go-to person for AXWS deployment steps, helped streamline documentation, and enabled faster onboarding of others. This project helped me improve not only technically but also in cross-functional collaboration and adaptability.
+		
+
+
+✅ How do you deal with ambiguity or unclear instructions?
+
+	I break down ambiguity by asking clarifying questions early, validating assumptions, and starting with a minimum viable solution.
+	
+	For example, I was once asked to “optimize cost across GCP projects,” which was vague. I clarified the scope, then audited unused VMs, orphaned disks, and idle namespaces across 50+ projects using Python scripts. The result was a ~30% cost reduction.
+	
+	I’ve learned that ambiguity isn’t a blocker — it’s a signal to collaborate, ask smart questions, and start iterating.
+	
+	
+✅ What drives you to perform at your best?
+	Two things: ownership and impact. I thrive when I know the system I’m building or debugging matters — that users or internal teams are depending on it.
+	
+	I also enjoy reducing friction — whether it’s by automating a repetitive task or setting up observability dashboards so issues don’t go undetected. 
+	When I see something broken or inefficient, I can’t help but fix it. That mindset keeps me sharp and self-motivated, even without external pressure.
+	
+
+💡 Culture Fit & Business Alignment
+
+✅ What do you value most in a team?
+
+	I value accountability, psychological safety, and clarity.
+	When everyone owns their piece, communicates openly (even when things go wrong), and aligns toward shared goals — that’s when teams really function well. 
+	I’ve been part of teams where people could ask “basic” questions without fear, and those ended up being the most efficient and innovative ones.
+
+	
+✅ How do you stay aligned with business goals when working on technical tasks?
+
+	I stay aligned by asking “why” before jumping into “how.”
+	If I’m asked to optimize a deployment pipeline, I clarify whether the goal is faster release, lower cost, or fewer errors — because the solution differs in each case.
+	I also loop in product or business stakeholders regularly to validate if what we’re doing is moving the needle for them.
+	Ultimately, I believe DevOps is about enabling business velocity safely.
+
+
+
+✅ What kind of work environment helps you thrive?
+
+	I thrive in an environment that’s focused but flexible — where there’s room to experiment and automate, but also discipline in reviews, planning, and retros.
+	I appreciate clear goals, minimal micromanagement, and trust to own my deliverables. 
+	And I enjoy working in cultures where curiosity is encouraged — whether it’s exploring a new tool, sharing infra knowledge, or improving team workflows.
+	
+
+
+
+⚖️ Soft-Skill Scenarios
+
+
+✅ How do you handle feedback or criticism?
+	
+	I welcome feedback — especially when it’s specific and constructive. I don’t take it personally; I take it as an opportunity to improve.
+	For example, early in my career, a peer mentioned that my scripts lacked documentation. 
+	I didn’t defend — I took the feedback, updated my PRs with proper comments, and even added a README template for our team. That feedback made me a better collaborator.
+	
+
+✅ Describe a situation where you had to communicate something complex to a non-technical audience.
+	
+	During a backend migration to GCP, the product team was concerned about potential downtime. I had to explain that we were using a blue-green deployment strategy with health checks and rollback hooks — but I didn’t throw those terms at them.
+	Instead, I said: “We’re setting up a safety net — imagine switching traffic from the old system to the new one gradually, and if anything goes wrong, we flip it back instantly.”
+	They understood and felt reassured. I’ve learned that the key is using analogies and focusing on outcomes, not implementation.
+	
+
+✅ What are you most proud of in your career so far?
+	
+	One project I’m proud of is when I built a Terraform-based automation to provision IAM roles, log sinks, and Pub/Sub routing across 70+ GCP projects.
+	Before this, setup was manual, error-prone, and inconsistent across teams. I created a reusable module, integrated it into CI/CD, and coordinated adoption org-wide.
+	What makes me proud isn’t just the code — it’s that it saved hours per project, standardized security, and became part of the company’s onboarding process.
